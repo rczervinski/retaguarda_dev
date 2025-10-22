@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+build/
+.next/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel
+.vercel/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Prisma
+prisma/generated/
+
+# Upload directory (será recriado dinamicamente no Vercel)
+public/upload/

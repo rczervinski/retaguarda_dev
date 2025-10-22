@@ -1,0 +1,1439 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Produto {
+  codigo_gtin    String?    @unique(map: "uk_codigo_gtin") @db.VarChar(15)
+  descricao      String?    @db.VarChar(250)
+  codigo_interno BigInt     @id(map: "pk_produtos")
+  status         String?    @db.Char(6)
+  ns             String?    @db.VarChar(10)
+  ml             String?    @db.VarChar(10)
+  shopee         String?    @db.VarChar(10)
+  
+  // Relacionamentos
+  produtoIb      ProdutoIb?
+  produtoOu      ProdutoOu?
+  produtoTb      ProdutoTb?
+
+  @@index([ml], map: "idx_produtos_ml")
+  @@index([ns], map: "idx_produtos_ns")
+  @@index([shopee], map: "idx_produtos_shopee")
+  @@index([codigo_gtin], map: "index_produtos", type: Hash)
+  @@map("produtos")
+}
+
+model ProdutoIb {
+  codigo_interno      BigInt  @id
+  
+  // Relacionamento com Produto
+  produto            Produto  @relation(fields: [codigo_interno], references: [codigo_interno], onDelete: Cascade)
+  descricao_detalhada String? @db.VarChar(250)
+  grupo               String? @db.VarChar(100)
+  subgrupo            String? @db.VarChar(100)
+  categoria           String? @db.VarChar(100)
+  unidade             String? @db.VarChar(10)
+  peso_bruto          String? @db.VarChar(20)
+  peso_liquido        String? @db.VarChar(20)
+  preco_venda         String? @db.VarChar(20)
+  preco_compra        String? @db.VarChar(20)
+  perc_lucro          String? @db.VarChar(20)
+  codigo_ncm          String? @db.VarChar(13)
+  produto_balanca     String? @db.VarChar(1) @default("0")
+  validade            String? @db.VarChar(20)
+  unidade_entrada     String? @db.VarChar(10)
+  fator_conversao     String? @db.VarChar(20)
+  ex_tipi             String? @db.VarChar(20)
+  genero              String? @db.VarChar(20)
+  cfop                String? @db.VarChar(10)
+  cest                String? @db.VarChar(10)
+  categoria_ml        String? @db.VarChar(20)
+
+  @@index([categoria_ml], map: "idx_produtos_ib_categoria_ml")
+  @@map("produtos_ib")
+}
+
+model ProdutoOu {
+  codigo_interno          BigInt    @id
+  
+  // Relacionamento com Produto
+  produto                Produto   @relation(fields: [codigo_interno], references: [codigo_interno], onDelete: Cascade)
+  perc_desc_a             String?   @db.VarChar(20) @default("0")
+  perc_desc_b             String?   @db.VarChar(20) @default("0")
+  perc_desc_c             String?   @db.VarChar(20) @default("0")
+  perc_desc_d             String?   @db.VarChar(20) @default("0")
+  perc_desc_e             String?   @db.VarChar(20) @default("0")
+  val_desc_a              String?   @db.VarChar(20) @default("0")
+  val_desc_b              String?   @db.VarChar(20) @default("0")
+  val_desc_c              String?   @db.VarChar(20) @default("0")
+  val_desc_d              String?   @db.VarChar(20) @default("0")
+  val_desc_e              String?   @db.VarChar(20) @default("0")
+  qtde                    String?   @db.VarChar(20) @default("0")
+  qtde_min                String?   @db.VarChar(20) @default("0")
+  inativo                 String?   @db.VarChar(1) @default("0")
+  codfor                  String?   @db.VarChar(20) @default("0")
+  qtde_promo              String?   @db.VarChar(20) @default("0")
+  valor_qtde_promo        String?   @db.VarChar(20) @default("0")
+  tamanho                 String?   @db.VarChar(10)
+  dt_promo1               DateTime? @db.Date
+  dt_promo2               DateTime? @db.Date
+  valor_intervalo_promo   String?   @db.VarChar(20) @default("0")
+  vencimento              DateTime? @db.Date
+  descricao_personalizada String?   @db.VarChar(1) @default("0")
+  dt_cadastro             DateTime? @db.Date
+  dt_ultima_alteracao     DateTime? @db.Date
+  preco_gelado            String?   @db.VarChar(20) @default("0")
+  desc_etiqueta           String?   @db.VarChar(50)
+  producao                String?   @db.VarChar(1)
+  comprimento             String?   @default("0") @db.VarChar(10)
+  largura                 String?   @db.VarChar(10)
+  altura                  String?   @db.VarChar(10)
+  peso                    String?   @db.VarChar(10)
+  vencimento2             DateTime? @db.Date
+
+  @@map("produtos_ou")
+}
+
+model ProdutoTb {
+  codigo_interno              BigInt  @id
+  
+  // Relacionamento com Produto
+  produto                    Produto  @relation(fields: [codigo_interno], references: [codigo_interno], onDelete: Cascade)
+  ipi_reducao_bc              Float?
+  aliquota_ipi                Float?
+  ipi_reducao_bc_st           Float?
+  aliquota_ipi_st             Float?
+  pis_reducao_bc              Float?
+  aliquita_pis                Float?
+  pis_reducao_bc_st           Float?
+  aliquota_pis_st             Float?
+  cofins_reducao_bc           Float?
+  aliquota_cofins             Float?
+  cofins_reducao_bc_st        Float?
+  aliquota_cofins_st          Float?
+  situacao_tributaria         Int?
+  origem                      Int?
+  aliquota_calculo_credito    Float?
+  modalidade_deter_bc_icms    String? @db.VarChar(50)
+  aliquota_icms               Float?
+  icms_reducao_bc             Float?
+  modalidade_deter_bc_icms_st String? @db.VarChar(50)
+  icms_reducao_bc_st          Float?
+  perc_mva_icms_st            Float?
+  aliquota_icms_st            Float?
+  cst_ipi                     Int?
+  calculo_ipi                 String? @db.VarChar(20)
+  cst_pis                     Int?
+  calculo_pis                 String? @db.VarChar(20)
+  cst_cofins                  Int?
+  calculo_cofins              String? @db.VarChar(20)
+  aliquota_fcp                Float?
+  aliquota_fcp_st             Float?
+  perc_dif                    Float?
+
+  @@map("produtos_tb")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model Fornecedor {
+  codigo         BigInt    @default(autoincrement())
+  fantasia       String?   @db.VarChar(200)
+  razao_social   String?   @db.VarChar(200)
+  cpf_cnpj       String?   @db.VarChar(20)
+  inscricao_rg   String?   @db.VarChar(20)
+  comprador      String?   @db.VarChar(100)
+  vendedor       String?   @db.VarChar(100)
+  cep            String    @db.VarChar(10)
+  logradouro     String?   @db.VarChar(200)
+  complemento    String?   @db.VarChar(10)
+  bairro         String?   @db.VarChar(100)
+  fone           String?   @db.VarChar(20)
+  fax            String?   @db.VarChar(20)
+  celular        String?   @db.VarChar(20)
+  operadora      String?   @db.VarChar(20)
+  email          String?   @db.VarChar(200)
+  inativo        Int?
+  numero         Int?
+  municipio      Int?
+  uf             Int?
+  dt_inicio      DateTime? @db.Date
+  municipio_desc String?   @db.VarChar(150)
+  uf_desc        String?   @db.VarChar(2)
+
+  @@map("fornecedores")
+  @@ignore
+}
+
+model agrupamento {
+  codigo      BigInt
+  codigo_gtin String @db.VarChar(15)
+
+  @@id([codigo, codigo_gtin], map: "pk_agrupamento")
+}
+
+model animais {
+  codigo        Int       @id(map: "pk_animais") @default(autoincrement())
+  nome          String?   @db.VarChar(100)
+  proprietario  Int?
+  sexo          String?   @db.VarChar(10)
+  especie       String?   @db.VarChar(50)
+  raca          String?   @db.VarChar(100)
+  pedigree      String?   @db.VarChar(50)
+  chip          String?   @db.VarChar(50)
+  pelagem       String?   @db.VarChar(50)
+  nascimento    DateTime? @db.Date
+  inclusao      DateTime? @db.Date
+  alteracao     DateTime? @db.Date
+  obito         DateTime? @db.Date
+  observacao    String?
+  comportamento String?   @db.VarChar(50)
+  castrado      Int?
+}
+
+model argox {
+  codigo       Int  @id(map: "pk_argox") @default(autoincrement())
+  descricao_1  Int?
+  descricao_2  Int?
+  descricao_3  Int?
+  descricao_4  Int?
+  descricao_5  Int?
+  descricao_6  Int?
+  descricao_7  Int?
+  descricao_8  Int?
+  cifrao_1     Int?
+  cifrao_2     Int?
+  cifrao_3     Int?
+  cifrao_4     Int?
+  cifrao_5     Int?
+  cifrao_6     Int?
+  cifrao_7     Int?
+  cifrao_8     Int?
+  codbarra_1   Int?
+  codbarra_2   Int?
+  codbarra_3   Int?
+  codbarra_4   Int?
+  codbarra_5   Int?
+  codbarra_6   Int?
+  codbarra_7   Int?
+  precovenda_1 Int?
+  precovenda_2 Int?
+  precovenda_3 Int?
+  precovenda_4 Int?
+  precovenda_5 Int?
+  precovenda_6 Int?
+  precovenda_7 Int?
+  precovenda_8 Int?
+  largura      Int?
+}
+
+model bairros {
+  codigo Int     @id(map: "pk")
+  bairro String? @db.VarChar(50)
+  cidade Int?
+}
+
+model banho_tosa {
+  codigo     Int       @id(map: "pk_banho_tosa") @default(autoincrement())
+  codigo_pet Int?
+  relato     String?
+  observacao String?
+  data       DateTime? @db.Date
+  hora       String?   @db.VarChar(10)
+  valor      Float?
+}
+
+model ca_base {
+  codigo Int     @id(map: "pk_ca_base") @default(autoincrement())
+  nome   String? @db.VarChar(100)
+}
+
+model ca_prod {
+  codigo_base Int
+  codigo_gtin String @db.VarChar(15)
+  qtde        Float?
+
+  @@id([codigo_base, codigo_gtin], map: "pk_ca_prod")
+}
+
+model caixa_vendedores {
+  codigo              Int       @id(map: "pk_caixa_vendedores") @default(autoincrement())
+  data_abertura       DateTime? @db.Date
+  hora_abertura       String?   @db.VarChar(11)
+  data_fechamento     DateTime? @db.Date
+  hora_fechamento     String?   @db.VarChar(11)
+  dinheiro_abertura   Float?
+  dinheiro_fechamento Float?
+  vendedor            Int?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model caixas {
+  caixa1 String? @db.VarChar(20)
+  caixa2 String? @db.VarChar(20)
+  caixa3 String? @db.VarChar(20)
+  caixa4 String? @db.VarChar(20)
+  caixa5 String? @db.VarChar(20)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model cest {
+  cest      String? @db.VarChar(7)
+  ncm       String? @db.VarChar(8)
+  descricao String? @db.VarChar(512)
+
+  @@ignore
+}
+
+model cfops {
+  codigo    String  @id(map: "pkcfop") @db.VarChar(5)
+  descricao String? @db.VarChar(400)
+}
+
+model cidades {
+  codigo        Int     @id(map: "pk_codigo")
+  cidade        String? @db.VarChar(100)
+  uf            String? @db.VarChar(2)
+  cod_uf        Int?
+  cod_municipio Int?
+}
+
+model clientes {
+  codigo         BigInt    @id(map: "codigo_pk") @default(autoincrement())
+  fantasia       String?   @db.VarChar(200)
+  razao_social   String?   @db.VarChar(200)
+  cpf_cnpj       String?   @db.VarChar(20)
+  inscricao_rg   String?   @db.VarChar(20)
+  contato        String?   @db.VarChar(100)
+  cep            String    @db.VarChar(10)
+  logradouro     String?   @db.VarChar(200)
+  complemento    String?   @db.VarChar(10)
+  bairro         String?   @db.VarChar(100)
+  fone           String?   @db.VarChar(20)
+  fax            String?   @db.VarChar(20)
+  celular        String?   @db.VarChar(20)
+  operadora      String?   @db.VarChar(20)
+  email          String?   @db.VarChar(200)
+  inativo        Int?
+  classificacao  String?   @db.VarChar(1)
+  numero         Int?
+  municipio      Int?
+  uf             Int?
+  senha          String?   @db.VarChar(30)
+  limite         Float?
+  mae            String?   @db.VarChar(100)
+  pai            String?   @db.VarChar(100)
+  conjuge        String?   @db.VarChar(100)
+  ref1           String?   @db.VarChar(100)
+  ref2           String?   @db.VarChar(100)
+  fone_ref1      String?   @db.VarChar(20)
+  fone_ref2      String?   @db.VarChar(20)
+  profissao      String?   @db.VarChar(100)
+  nascimento     DateTime? @db.Date
+  vencimento     Int?
+  numeracao      String?   @db.VarChar(250)
+  municipio_desc String?   @db.VarChar(150)
+  uf_desc        String?   @db.VarChar(2)
+  entrega        Int?
+  retirada       Int?
+}
+
+model comandas_divisao {
+  id             Int       @id @default(autoincrement())
+  comanda_id     Int       @unique
+  total_parcelas Int
+  parcelas_pagas Int?      @default(0)
+  valor_total    Decimal   @db.Decimal(10, 2)
+  valor_pago     Decimal?  @default(0) @db.Decimal(10, 2)
+  status         Int?      @default(0)
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model compradores {
+  codigo Int     @id(map: "pk_compradores") @default(autoincrement())
+  nome   String? @db.VarChar(100)
+}
+
+model compras_base {
+  codigo           Int       @id(map: "pk_compras_base") @default(autoincrement())
+  documento        String?   @db.VarChar(20)
+  fornecedor       BigInt?
+  comprador        BigInt?
+  data             DateTime? @db.Date
+  hora             String?   @db.VarChar(10)
+  serie            BigInt?
+  tipo             Int?
+  natureza         Int?
+  dados_adicionais String?
+}
+
+model compras_fat {
+  codigo_interno Int       @id(map: "pk_compras_fat") @default(autoincrement())
+  compra         BigInt?
+  numero         String?   @db.VarChar(20)
+  vencimento     DateTime? @db.Date
+  valor          Float?
+}
+
+model compras_imposto {
+  codigo     Int     @id(map: "pk_compras_imposto") @default(autoincrement())
+  compra     BigInt?
+  bcicms     Float?
+  vlicms     Float?
+  bcicmsst   Float?
+  vlicmsst   Float?
+  vlprods    Float?
+  vlfrete    Float?
+  vlseguro   Float?
+  vldesconto Float?
+  vldespesas Float?
+  vlipi      Float?
+  vltotal    Float?
+}
+
+model compras_prod {
+  compra            BigInt
+  codigo_gtin       String  @db.VarChar(15)
+  preco_compra      Float?
+  qtde              Float?
+  total             Float?
+  codigo            Int     @id(map: "pk_compras_prod") @default(autoincrement())
+  codigo_origem     String? @db.VarChar(30)
+  unidade           String? @db.VarChar(10)
+  descricao         String? @db.VarChar(200)
+  codigo_ncm        String? @db.VarChar(13)
+  cst_cson          String? @db.VarChar(6)
+  cfop              Int?
+  preco_unitario    Float?
+  bc_icms           Float?
+  val_icms          Float?
+  aliquota_icms     Float?
+  aliquota_ipi      Float?
+  desconto          Float?
+  numero_serie      String? @db.VarChar(50)
+  frete             Float?
+  seguro            Float?
+  outros            Float?
+  aliquota_icms_st  Float?
+  bc_icms_st        Float?
+  val_icms_st       Float?
+  codigo_gtin_banco String? @db.VarChar(15)
+}
+
+model compras_tra {
+  compra             BigInt  @id(map: "pk_compras_tra")
+  cod_transportadora BigInt
+  por_conta          Int?
+  cod_antt           String? @db.VarChar(10)
+  placa              String? @db.VarChar(10)
+  placa_uf           String? @db.VarChar(2)
+  quantidade         Float?
+  especie            String? @db.VarChar(20)
+  marca              String? @db.VarChar(20)
+  numeracao          String? @db.VarChar(20)
+  peso_liquido       Float?
+  peso_bruto         Float?
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model configuracao {
+  regime_tributario           Int?
+  homologacao                 Int?
+  msg1                        String? @db.VarChar(48)
+  msg2                        String? @db.VarChar(48)
+  msg3                        String? @db.VarChar(48)
+  msg4                        String? @db.VarChar(48)
+  orc_ecf                     Int?
+  orc_print                   Int?
+  cupom1                      String? @db.VarChar(48)
+  cupom2                      String? @db.VarChar(48)
+  cupom3                      String? @db.VarChar(48)
+  cupom4                      String? @db.VarChar(48)
+  certificado_digital         String? @db.VarChar(250)
+  etiquetadora                String? @db.VarChar(20)
+  dez_porcento                Int?
+  tipo_certificado            String? @db.VarChar(5)
+  senha_certificado           String? @db.VarChar(20)
+  tipo_certificado_a3         String? @db.VarChar(20)
+  id_token                    String? @db.VarChar(10)
+  csc                         String? @db.VarChar(40)
+  informacoes_adicionais      String? @db.VarChar(500)
+  dist_nr_servidores          Int?
+  dist_pasta                  String? @db.VarChar(50)
+  dist_servidor               String? @db.VarChar(50)
+  email_smtp                  String? @db.VarChar(100)
+  srv_smtp                    String? @db.VarChar(100)
+  usuario_smtp                String? @db.VarChar(100)
+  senha_smtp                  String? @db.VarChar(100)
+  porta_smtp                  Int?
+  credenciadora_cartao        String? @db.VarChar(15)
+  mensagem_carne              String?
+  prd_fullscreen              Int?
+  clinica_veterinaria         Int?
+  hora_backup                 String? @db.VarChar(8)
+  hora_contingencia           String? @db.VarChar(8)
+  ctrl_v                      Int?
+  nfe_autorizacao             String? @db.VarChar(250)
+  nfe_consultarecibo          String? @db.VarChar(250)
+  nfe_consultachaveacesso     String? @db.VarChar(250)
+  nfe_inutilizacao            String? @db.VarChar(250)
+  nfe_consultastatusservico   String? @db.VarChar(250)
+  nfe_consultacadastro        String? @db.VarChar(250)
+  nfe_registroeventos         String? @db.VarChar(250)
+  nfce_autorizacao            String? @db.VarChar(250)
+  nfce_consultarecibo         String? @db.VarChar(250)
+  nfce_consultachaveacesso    String? @db.VarChar(250)
+  nfce_inutilizacao           String? @db.VarChar(250)
+  nfce_consultastatusservico  String? @db.VarChar(250)
+  nfce_consultacadastro       String? @db.VarChar(250)
+  nfce_registroeventos        String? @db.VarChar(250)
+  exigir_justificativa        Int?
+  cooperativa                 Int?
+  acougue                     Int?
+  pizzaria                    Int?
+  ifood_sitemercado           Int?
+  ifood_client_id             String? @db.VarChar(100)
+  ifood_client_secret         String? @db.VarChar(100)
+  ifood_idloja                String? @db.VarChar(50)
+  peso_cod_balanca            Int?
+  preco_compra                Int?
+  mei                         Int?
+  mottu_url                   String? @db.VarChar(100)
+  mottu_id                    String? @db.VarChar(20)
+  mottu_senha                 String? @db.VarChar(100)
+  mottu_email                 String? @db.VarChar(100)
+  valor_fidelizacao           Float?
+  pontuacao_fidelizacao       Int?
+  total_pontuacao_fidelizacao Int?
+  desconto_fidelizacao        Float?
+  ftp_usuario                 String? @db.VarChar(50)
+  ftp_senha                   String? @db.VarChar(50)
+  sieg_key                    String? @db.VarChar(200)
+  sieg_email                  String? @db.VarChar(200)
+
+  @@ignore
+}
+
+model consulta {
+  codigo                 Int       @id(map: "pk_consulta") @default(autoincrement())
+  codigo_pet             Int?
+  relato                 String?
+  observacao             String?
+  data                   DateTime? @db.Date
+  hora                   String?   @db.VarChar(10)
+  valor                  Float?
+  inicio                 String?   @db.VarChar(12)
+  fez_exames             Int?
+  tratamentos_anteriores String?
+  resolveram             Int?
+  hoje_trata_algo        String?
+  grau_prurido           Int?
+  frequencia_antipulgas  String?   @db.VarChar(100)
+  passeia                Int?
+  banho_casa             Int?
+  frequencia_banho       String?   @db.VarChar(100)
+  produtos               String?   @db.VarChar(200)
+  aliviado_posbanho      Int?
+  alimentacao            String?   @db.VarChar(200)
+  gosta_pao              Int?
+  vomitos                Int?
+  diarreias              Int?
+  contato_outros_animais Int?
+  teve_otite             Int?
+  tratou_como            String?   @db.VarChar(200)
+  peso                   String?   @db.VarChar(10)
+}
+
+model contabilista {
+  codigo      Int     @id(map: "pk_contabilista") @default(autoincrement())
+  nome        String? @db.VarChar(200)
+  cpf         String? @db.VarChar(11)
+  crc         String? @db.VarChar(15)
+  cnpj        String? @db.VarChar(20)
+  cep         String? @db.VarChar(10)
+  endereco    String? @db.VarChar(150)
+  numero      String? @db.VarChar(5)
+  complemento String? @db.VarChar(30)
+  bairro      String? @db.VarChar(100)
+  telefone    String? @db.VarChar(30)
+  fax         String? @db.VarChar(15)
+  email       String? @db.VarChar(100)
+  municipio   Int?
+}
+
+model contas_bc {
+  codigo Int     @id(map: "pk_contas_bc") @default(autoincrement())
+  nome   String? @db.VarChar(100)
+}
+
+model contas_bc_lancamentos {
+  codigo          Int       @id(map: "pk_contas_bc_lancamentos") @default(autoincrement())
+  conta_bc_codigo Int?
+  data            DateTime? @db.Date
+  credito         Float?
+  debito          Float?
+  historico       String?   @db.VarChar(200)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model contas_pagar {
+  codigo          Int       @default(autoincrement())
+  data_lancamento DateTime? @db.Date
+  fornecedor      BigInt?
+  compra          BigInt?
+  valor           Float?
+  vencimento      DateTime? @db.Date
+  comprador       String?   @db.VarChar(100)
+  data_pgto       DateTime? @db.Date
+  valor_pgto      Float?    @default(0)
+  desconto        Float?
+  juro            Float?
+  tipo            String?   @db.VarChar(50)
+  documento       String?   @db.VarChar(50)
+  operador        String?   @db.VarChar(100)
+  parcela         String?   @db.VarChar(7)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model contas_receber {
+  codigo     Int       @default(autoincrement())
+  data       DateTime? @db.Date
+  cliente    BigInt?
+  venda      BigInt?
+  valor      Float?
+  vencimento DateTime? @db.Date
+  operador   Int?
+  comprador  String?   @db.VarChar(100)
+  data_pgto  DateTime? @db.Date
+  valor_pgto Float?    @default(0)
+  saldo      Float?
+  desconto   Float?
+  juro       Float?
+
+  @@ignore
+}
+
+model contas_receber2 {
+  codigo     Int       @default(autoincrement())
+  cliente    Int
+  data       DateTime? @db.Date
+  venda      BigInt?
+  credito    Float?
+  debito     Float?
+  saldo      Float?
+  historico  String?   @db.VarChar(255)
+  vencimento DateTime? @db.Date
+
+  @@id([codigo, cliente], map: "pk_contas_receber2")
+}
+
+model controle_vendas {
+  cliente  Int
+  grupo    String    @db.VarChar(50)
+  data_ini DateTime? @db.Date
+  data_fim DateTime? @db.Date
+  qtde     Float?
+
+  @@id([cliente, grupo], map: "pk_controle_vendas")
+}
+
+model convenios {
+  codigo           Int     @id @default(autoincrement())
+  numero_convenio  String? @db.VarChar(10)
+  nome_convenio    String? @db.VarChar(100)
+  conta            String? @db.VarChar(10)
+  conta_dv         String? @db.VarChar(1)
+  agencia          String? @db.VarChar(10)
+  agencia_dv       String? @db.VarChar(1)
+  agencia_conta_dv String? @db.VarChar(1)
+  faixa_inicial    String? @db.VarChar(10)
+  faixa_final      String? @db.VarChar(10)
+  instituicao_cnpj String? @db.VarChar(14)
+  nome_instituicao String? @db.VarChar(100)
+}
+
+model conversao_cfop {
+  codigo Int @id(map: "pk_conversao_cfop") @default(autoincrement())
+  de     Int
+  para   Int
+}
+
+model conversao_cst {
+  codigo Int @id(map: "pk_conversao_cst") @default(autoincrement())
+  de     Int
+  para   Int
+}
+
+model dav_base {
+  codigo          Int       @id(map: "pk_dav_base") @default(autoincrement())
+  documento       String?   @db.VarChar(20)
+  cliente         BigInt?
+  vendedor        BigInt?
+  data            DateTime? @db.Date
+  hora            String?   @db.VarChar(10)
+  obs             String?
+  desconto        Float?
+  forma_pagamento String?
+  programa        String?   @db.VarChar(100)
+  dt_entrega      DateTime? @db.Date
+}
+
+model dav_carregados {
+  codigo Int       @id(map: "pk_dav_carregados") @default(autoincrement())
+  dav    BigInt?
+  data   DateTime? @db.Date
+}
+
+model dav_contrato {
+  codigo Int     @id(map: "pk_dav_contrato") @default(autoincrement())
+  dav    BigInt?
+}
+
+model dav_prod {
+  dav              BigInt
+  codigo_gtin      String  @db.VarChar(15)
+  preco_venda      Float?
+  qtde             Float?
+  total            Float?
+  codigo           Int     @id(map: "pk_dav_prod") @default(autoincrement())
+  tabela_utilizada String? @db.VarChar(1)
+  complemento      String? @db.VarChar(100)
+}
+
+model depositos {
+  codigo      Int       @id(map: "pk_depositos") @default(autoincrement())
+  data        DateTime? @db.Date
+  depositario String?   @db.VarChar(100)
+  cliente     Int?
+  valor       Float?
+}
+
+model enderecos {
+  cep      String  @id(map: "pk_endereco") @db.VarChar(10)
+  endereco String? @db.VarChar(200)
+  cidade   Int?
+  bairro   Int?
+}
+
+model estabelecimentos {
+  codigo         Int     @id(map: "pk_estabelecimento")
+  razao_social   String? @db.VarChar(200)
+  cnpj           String? @db.VarChar(20)
+  ie             String? @db.VarChar(20)
+  endereco       String? @db.VarChar(150)
+  bairro         String? @db.VarChar(100)
+  municipio      Int?
+  uf             Int?
+  cep            String? @db.VarChar(10)
+  telefone       String? @db.VarChar(30)
+  numero         String? @db.VarChar(5)
+  complemento    String? @db.VarChar(30)
+  fax            String? @db.VarChar(15)
+  contato        String? @db.VarChar(30)
+  cfop           String? @db.VarChar(5)
+  pis            String? @db.VarChar(6)
+  cofins         String? @db.VarChar(6)
+  modelonf       Int?
+  fantasia       String? @db.VarChar(200)
+  email          String? @db.VarChar(100)
+  municipio_desc String? @db.VarChar(150)
+  uf_desc        String? @db.VarChar(2)
+}
+
+model etiquetas {
+  codigo      Int     @id(map: "pk_etiquetas") @default(autoincrement())
+  codigo_gtin String? @db.VarChar(15)
+  descricao   String? @db.VarChar(50)
+  preco       String? @db.VarChar(15)
+}
+
+model eventos_nfce {
+  codigo    Int     @id(map: "pk_eventos_nfce") @default(autoincrement())
+  numero    Int?
+  serie     Int?
+  protocolo String? @db.VarChar(50)
+  data_hora String? @db.VarChar(50)
+  evento    String? @db.VarChar(50)
+  xml       String?
+}
+
+model eventos_nfe {
+  codigo    Int     @id(map: "pk_eventos_nfe") @default(autoincrement())
+  numero    Int?
+  serie     Int?
+  protocolo String? @db.VarChar(50)
+  data_hora String? @db.VarChar(50)
+  evento    String? @db.VarChar(50)
+  xml       String?
+  chave     String? @db.VarChar(50)
+}
+
+model fidelizacao {
+  codigo       Int       @id(map: "pk_fidelizacao") @default(autoincrement())
+  cliente      BigInt?
+  venda        BigInt?
+  valor        Float?
+  pontuacao    Int?
+  status       Int?
+  data_resgate DateTime? @db.Date
+}
+
+model fila_atendimento {
+  codigo     Int       @id(map: "pk_fila_atendimento") @default(autoincrement())
+  codigo_pet Int?
+  nome       String?   @db.VarChar(100)
+  hora       String?   @db.VarChar(10)
+  data       DateTime? @db.Date
+  tipo       Int?
+  obs        String?
+}
+
+model ibpt {
+  codigo          Int     @id(map: "pk_ibpt") @default(autoincrement())
+  ncm             String? @db.VarChar(10)
+  imposto_federal Float?
+  imposto_pr      Float?
+}
+
+model indices_financeiros {
+  codigo                 Int    @id(map: "pk_indices_financeiros") @default(autoincrement())
+  taxa_juros_perc        Float?
+  carencia_dias          Int?
+  taxa_juros_perc_atraso Float?
+  tolerancia_dias_atraso Int?
+  custo_loja             Float?
+  margem_sugerida        Float?
+}
+
+model lembretes {
+  codigo      Int       @id(map: "pk_lembretes") @default(autoincrement())
+  data        DateTime? @db.Date
+  hora        String?   @db.VarChar(10)
+  descricao   String?   @db.VarChar(200)
+  lembrarem   Int?
+  relembrarem Int?
+  concluido   Int?
+}
+
+model merge_log {
+  id              Int       @id @default(autoincrement())
+  data_merge      DateTime? @default(now()) @db.Timestamp(6)
+  comanda_origem  String?   @db.VarChar(50)
+  comanda_destino String?   @db.VarChar(50)
+  itens_movidos   String?
+  usuario         String?   @db.VarChar(100)
+  status          String?   @default("ativo") @db.VarChar(20)
+  nome_origem     String?   @db.VarChar(100)
+  nome_destino    String?   @db.VarChar(100)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ml_error_learning {
+  id             Int       @id @default(autoincrement())
+  error_code     String    @unique(map: "idx_ml_error_learning_code") @db.VarChar(100)
+  original_error String
+  mapped_error   String
+  source         String    @db.VarChar(50)
+  created_at     DateTime? @default(now()) @db.Timestamp(6)
+  last_seen      DateTime? @default(now()) @db.Timestamp(6)
+  count          Int?      @default(1)
+  admin_reviewed Boolean?  @default(false)
+  admin_mapping  String?
+  notes          String?
+
+  @@index([count(sort: Desc)], map: "idx_ml_error_learning_count")
+  @@index([source], map: "idx_ml_error_learning_source")
+}
+
+model ml_size_charts {
+  id         Int       @id @default(autoincrement())
+  chart_id   String    @unique @db.VarChar(50)
+  chart_name String    @db.VarChar(255)
+  sizes      String
+  categoria  String    @db.VarChar(20)
+  gender     String    @db.VarChar(20)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model ncms {
+  codigo    String  @id(map: "pkncm") @db.VarChar(10)
+  descricao String? @db.VarChar(300)
+}
+
+model nf_base {
+  codigo_interno    BigInt    @id(map: "pk_nf_base")
+  documento         BigInt?
+  serie             BigInt?
+  tipo              Int?
+  natureza          Int?
+  cliente           BigInt?
+  emissao           DateTime? @db.Date
+  saida             DateTime? @db.Date
+  hora              String?   @db.VarChar(10)
+  status            Int?
+  pedido            Int?
+  chave             String?   @db.VarChar(100)
+  protocolo         String?   @db.VarChar(100)
+  data_protocolo    String?   @db.VarChar(25)
+  hora_protocolo    String?   @db.VarChar(25)
+  recibo            String?   @db.VarChar(100)
+  dados_adicionais  String?
+  motivo            String?
+  iest              String?   @db.VarChar(20)
+  dados_adicionais2 String?
+  xml               String?
+}
+
+model nf_di {
+  codigo            Int       @id(map: "pk_nf_di") @default(autoincrement())
+  documento         BigInt?
+  serie             BigInt?
+  codigo_gtin       String    @db.VarChar(15)
+  numero_di         Float?
+  data_di           DateTime? @db.Date
+  local_desemb      String?   @db.VarChar(200)
+  uf_desemb         String?   @db.VarChar(200)
+  data_desemb       DateTime? @db.Date
+  tp_viatransp      String?   @db.VarChar(2)
+  vl_afrmm          Float?
+  tp_intermedio     String?   @db.VarChar(2)
+  codigo_exportador String?   @db.VarChar(30)
+  numero_adic       Float?
+  numero_seq_adic   Float?
+  codigo_fabricante String?   @db.VarChar(30)
+  vl_desc_di        Float?
+  numero_draw       String?   @db.VarChar(30)
+}
+
+model nf_docref {
+  codigo     Int     @id(map: "pk_nf_docref") @default(autoincrement())
+  numero     Int
+  serie      Int
+  chave      String? @db.VarChar(50)
+  uf         String? @db.VarChar(2)
+  anomes     String? @db.VarChar(5)
+  cnpj       String? @db.VarChar(15)
+  mod        String? @db.VarChar(2)
+  serie_ref  Int?
+  numero_ref BigInt?
+}
+
+model nf_fat {
+  codigo_interno Int       @id(map: "pk_nf_fat") @default(autoincrement())
+  numero_nf      BigInt?
+  serie_nf       Int?
+  numero         String?   @db.VarChar(20)
+  vencimento     DateTime? @db.Date
+  valor          Float?
+}
+
+model nf_imposto {
+  codigo           Int     @id(map: "pk_nf_imposto") @default(autoincrement())
+  documento        BigInt?
+  serie            BigInt?
+  bcicms           Float?
+  vlicms           Float?
+  bcicmsst         Float?
+  vlicmsst         Float?
+  vlprods          Float?
+  vlfrete          Float?
+  vlseguro         Float?
+  vldesconto       Float?
+  vldespesas       Float?
+  vlipi            Float?
+  vltotal          Float?
+  imposto_federal  Float?
+  imposto_estadual Float?
+}
+
+model nf_prod {
+  nf_numero            BigInt
+  nf_serie             Int
+  codigo_gtin          String  @db.VarChar(15)
+  descricao            String? @db.VarChar(200)
+  codigo_ncm           String? @db.VarChar(13)
+  cst_cson             String? @db.VarChar(6)
+  cfop                 Int?
+  unidade              String? @db.VarChar(6)
+  quantidade           Float?
+  preco_unitario       Float?
+  total                Float?
+  bc_icms              Float?
+  val_icms             Float?
+  val_ipi              Float?
+  aliquota_icms        Float?
+  aliquota_ipi         Float?
+  desconto             Float?
+  numero_serie         String? @db.VarChar(50)
+  codigo               Int     @id(map: "pk_nf_prod") @default(autoincrement())
+  frete                Float?  @default(0)
+  seguro               Float?  @default(0)
+  outros               Float?  @default(0)
+  aliquota_icms_st     Float?
+  bc_icms_st           Float?
+  val_icms_st          Float?  @default(0)
+  aliquota_fcp         Float?
+  aliquota_fcp_st      Float?
+  val_fcp              Float?  @default(0)
+  val_fcp_st           Float?  @default(0)
+  perc_dif             Float?  @default(0)
+  val_icmsop           Float?  @default(0)
+  val_icmsdif          Float?  @default(0)
+  numero_pedido_compra String? @db.VarChar(15)
+  item_pedido_compra   Int?
+}
+
+model nf_tra {
+  nf_numero          BigInt
+  nf_serie           Int
+  cod_transportadora BigInt
+  por_conta          Int?
+  cod_antt           String? @db.VarChar(10)
+  placa              String? @db.VarChar(10)
+  placa_uf           String? @db.VarChar(2)
+  quantidade         Float?
+  especie            String? @db.VarChar(20)
+  marca              String? @db.VarChar(20)
+  numeracao          String? @db.VarChar(20)
+  peso_liquido       Float?
+  peso_bruto         Float?
+
+  @@id([nf_numero, nf_serie], map: "pk_nf_tra")
+}
+
+model nfc_base {
+  codigo_interno   Int       @id(map: "pk_nfc_base") @default(autoincrement())
+  documento        BigInt?
+  serie            BigInt?
+  tipo             Int?
+  natureza         Int?
+  emissao          DateTime? @db.Date
+  saida            DateTime? @db.Date
+  hora             String?   @db.VarChar(10)
+  status           Int?
+  chave            String?   @db.VarChar(100)
+  protocolo        String?   @db.VarChar(100)
+  data_protocolo   String?   @db.VarChar(25)
+  hora_protocolo   String?   @db.VarChar(25)
+  recibo           String?   @db.VarChar(100)
+  dados_adicionais String?
+  motivo           String?
+  cpf_cnpj         String?   @db.VarChar(14)
+  nr_venda         BigInt?
+  dig_val          String?   @db.VarChar(60)
+  valor_nf         Float?
+  valor_icms       Float?
+  qrcode           String?
+  xml              String?
+  email            String?   @db.VarChar(150)
+  cstat            Int?
+}
+
+model obs_banhotosa {
+  codigo Int     @id(map: "pk_obs_banhotosa") @default(autoincrement())
+  nome   String? @db.VarChar(300)
+}
+
+model obs_pedidos {
+  codigo     Int     @id(map: "pk_obs_pedidos") @default(autoincrement())
+  grupo      String? @db.VarChar(100)
+  subgrupo   String? @db.VarChar(100)
+  categoria  String? @db.VarChar(100)
+  observacao String? @db.VarChar(100)
+  cor        Int?
+}
+
+model pagamentos_divisao {
+  id              Int       @id @default(autoincrement())
+  comanda_id      Int
+  parcela_numero  Int
+  valor           Decimal   @db.Decimal(10, 2)
+  forma_pagamento Int
+  status          Int       @default(0)
+  data_pagamento  DateTime? @db.Timestamp(6)
+  cielo_response  String?
+  created_at      DateTime? @default(now()) @db.Timestamp(6)
+
+  @@unique([comanda_id, parcela_numero])
+}
+
+model ped_base {
+  codigo    Int       @id(map: "pk_ped_base") @default(autoincrement())
+  documento String?   @db.VarChar(20)
+  cliente   BigInt?
+  vendedor  BigInt?
+  data      DateTime? @db.Date
+  hora      String?   @db.VarChar(10)
+  obs       String?
+  desconto  Float?
+}
+
+model ped_online_base {
+  codigo         BigInt  @id(map: "pk_ped_online_base")
+  nome           String? @db.VarChar(100)
+  fone           String? @db.VarChar(30)
+  endereco       String? @db.VarChar(150)
+  data           String? @db.VarChar(15)
+  hora           String? @db.VarChar(10)
+  entrega        String? @db.VarChar(50)
+  forma_pgto     String? @db.VarChar(50)
+  numero         String? @db.VarChar(10)
+  complemento    String? @db.VarChar(100)
+  bairro         String? @db.VarChar(100)
+  id_checkout    String? @db.VarChar(200)
+  cep            String? @db.VarChar(10)
+  cpf            String? @db.VarChar(14)
+  municipio      String? @db.VarChar(100)
+  uf             String? @db.VarChar(10)
+  email          String? @db.VarChar(200)
+  status_desc    String? @db.VarChar(100)
+  valor_pago     String? @db.VarChar(50)
+  origem         String? @db.VarChar(50)
+  codigo_externo String? @db.VarChar(50)
+  payment_status String? @db.VarChar(50)
+  status         String? @db.VarChar(50)
+}
+
+model ped_online_prod {
+  codigo         BigInt  @id(map: "pk_ped_online_prod")
+  pedido         BigInt?
+  codigo_produto String? @db.VarChar(15)
+  qtde           Float?
+  preco_venda    Float?
+  observacao     String? @db.VarChar(200)
+}
+
+model pedidos_pos_venda {
+  codigo      Int       @id(map: "pk_pedidos_pos_venda") @default(autoincrement())
+  comanda     Int?
+  operador    String?   @db.VarChar(30)
+  data        DateTime? @db.Date
+  hora        String?   @db.VarChar(10)
+  codigo_gtin String?   @db.VarChar(15)
+  descricao   String?   @db.VarChar(250)
+  qtde        Float?
+  obs         String?   @db.VarChar(200)
+  status      Int?
+  impresso    Int?
+  atendido    Int?
+  categoria   String?   @db.VarChar(100)
+}
+
+model pedidos_terminal {
+  codigo      Int       @id(map: "pk_pedidos_terminal") @default(autoincrement())
+  comanda     Int?
+  operador    Int?
+  data        DateTime? @db.Date
+  hora        String?   @db.VarChar(10)
+  codigo_gtin String?   @db.VarChar(15)
+  valor       Float?
+  qtde        Float?
+  total       Float?
+  status      Int?
+  obs         String?
+  impresso    Int?
+  atendido    Int?
+  item        Int?
+  mesa        Int?
+  nome        String?   @db.VarChar(100)
+}
+
+model pedidos_terminal_tempo {
+  codigo        Int       @id(map: "pk_pedidos_terminal_tempo") @default(autoincrement())
+  comanda       Int?
+  nome          String?   @db.VarChar(150)
+  tempo         Int?
+  hora_abertura DateTime? @db.Time(6)
+  fone          String?   @db.VarChar(15)
+}
+
+model perdas {
+  codigo      Int       @id(map: "pk_perdas_codigo") @default(autoincrement())
+  codigo_gtin String    @db.VarChar(15)
+  descricao   String    @db.VarChar(100)
+  qtde        Float?
+  valor       Float?
+  total       Float?
+  data        DateTime? @db.Date
+}
+
+model produtos_cp {
+  codigo_interno BigInt
+  codigo_gtin    String @db.VarChar(15)
+  qtde           Float?
+
+  @@id([codigo_interno, codigo_gtin], map: "pk_produtos_cp")
+}
+
+model produtos_gd {
+  codigo         BigInt  @id
+  nome           String? @db.VarChar(150)
+  variacao       String? @db.VarChar(100)
+  caracteristica String? @db.VarChar(100)
+  codigo_gtin    String? @db.VarChar(15)
+  codigo_interno BigInt?
+}
+
+model produtos_ht {
+  codigo         Int       @id(map: "pk_produtos_ht")
+  codigo_interno Int?
+  qtde           Float?
+  preco_compra   Float?
+  preco_venda    Float?
+  vencimento     DateTime? @db.Date
+  fornecedor     Int?
+  justificativa  String?   @db.VarChar(200)
+  data           DateTime? @db.Date
+  usuario        String?   @db.VarChar(100)
+}
+
+model produtos_img {
+  codigo          Int     @default(autoincrement())
+  codigo_interno  Int     @id(map: "pk_codigo_interno")
+  codigo_gtin     String  @db.VarChar(15)
+  caminho_imagem1 String? @db.VarChar(150)
+  caminho_imagem2 String? @db.VarChar(150)
+  caminho_imagem3 String? @db.VarChar(150)
+  caminho_imagem4 String? @db.VarChar(150)
+}
+
+model produtos_nserie {
+  codigo         Int    @default(autoincrement())
+  codigo_interno BigInt
+  nserie         String @db.VarChar(100)
+
+  @@id([codigo_interno, nserie], map: "pk_nserie")
+}
+
+model produtos_tb_uf {
+  codigo_interno     BigInt
+  uf                 Int
+  icms_reducao_bc_st Float?
+  perc_mva_icms_st   Float?
+  aliquota_icms_st   Float?
+  aliquota_icms      Float?
+
+  @@id([codigo_interno, uf], map: "pk_produtos_tb_codigo_interno")
+}
+
+model promocoes {
+  codigo      Int     @id(map: "pk_promocoes") @default(autoincrement())
+  nome        String? @db.VarChar(50)
+  qtde        Float?
+  preco       Float?
+  codigo_gtin String? @db.VarChar(15)
+}
+
+model receber_pagamentos {
+  codigo          Int       @id(map: "pk_receber_pagamentos") @default(autoincrement())
+  data_pagamento  DateTime? @db.Date
+  codigo_conta    Int?
+  cliente         Int?
+  valor           Float?
+  historico       String?   @db.VarChar(255)
+  valor_pagamento Float?
+}
+
+model reducaoz {
+  codigo   Int       @id(map: "pk_reducaoz") @default(autoincrement())
+  pdv      Int
+  operador Int?
+  data     DateTime? @db.Date
+}
+
+model regioes {
+  codigo  Int     @id(map: "pk_regioes") @default(autoincrement())
+  nome    String? @db.VarChar(150)
+  taxa    Float?
+  inativo Int?
+}
+
+model sangria {
+  codigo     Int       @id(map: "pk_sangria") @default(autoincrement())
+  operador   Int?
+  valor      Float?
+  data       DateTime? @db.Date
+  hora       String?   @db.VarChar(8)
+  pdv        Int?
+  motivo     String?   @db.VarChar(100)
+  observacao String?   @db.VarChar(200)
+}
+
+model situacao_tributaria {
+  regime_tributario Int?
+  descricao_st      String? @db.VarChar(100)
+  codigo_st         String  @id(map: "PK") @db.VarChar(5)
+}
+
+model suprimento {
+  codigo   Int       @id(map: "pk_suprimento") @default(autoincrement())
+  operador Int?
+  valor    Float?
+  data     DateTime? @db.Date
+  hora     String?   @db.VarChar(8)
+  pdv      Int?
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model token_integracao {
+  codigo           Int     @id(map: "tokenmercado_pkey") @default(autoincrement())
+  code             String? @db.VarChar(200)
+  access_token     String? @db.VarChar(200)
+  client_id        String? @db.VarChar(200)
+  client_secret    String? @db.VarChar(200)
+  descricao        String? @db.VarChar(50)
+  url_checkout     String? @db.VarChar(200)
+  ativo            Int?    @default(0)
+  user_id          String? @db.VarChar(100)
+  expires_in       Int?    @default(0)
+  token_created_at Int?    @default(0)
+  refresh_token    String? @db.VarChar(255)
+}
+
+model transportadoras {
+  codigo         BigInt  @id(map: "transportadora_pk") @default(autoincrement())
+  fantasia       String? @db.VarChar(200)
+  razao_social   String? @db.VarChar(200)
+  cpf_cnpj       String? @db.VarChar(20)
+  inscricao_rg   String? @db.VarChar(20)
+  contato        String? @db.VarChar(100)
+  cep            String? @db.VarChar(10)
+  logradouro     String? @db.VarChar(200)
+  complemento    String? @db.VarChar(10)
+  bairro         String? @db.VarChar(100)
+  fone           String? @db.VarChar(20)
+  fax            String? @db.VarChar(20)
+  celular        String? @db.VarChar(20)
+  operadora      String? @db.VarChar(20)
+  email          String? @db.VarChar(200)
+  inativo        Int?
+  numero         Int?
+  municipio      Int?
+  uf             Int?
+  municipio_desc String? @db.VarChar(150)
+  uf_desc        String? @db.VarChar(2)
+}
+
+model usuarios {
+  codigo              Int     @id(map: "usuarios_pk")
+  usuario             String? @db.VarChar(100)
+  operador            Int?
+  gerente             Int?
+  supervisor          Int?
+  inativo             Int?
+  senha               String? @db.VarChar(20)
+  per_produtos        Int?
+  per_clientes        Int?
+  per_fornecedores    Int?
+  per_transportadoras Int?
+  per_vendedores      Int?
+  per_usuarios        Int?
+  per_entregas        Int?
+  per_compradores     Int?
+  per_nfe             Int?
+  per_orcamentos      Int?
+  per_pedidos         Int?
+  per_compras         Int?
+  per_contas_pagar    Int?
+  per_contas_receber  Int?
+  per_relatorios      Int?
+  per_configuracao    Int?
+  per_produtos_con    Int?
+
+  @@index([codigo], map: "index_usuarios", type: Hash)
+}
+
+model vacinacao {
+  codigo     Int       @id(map: "pk_vacinacao") @default(autoincrement())
+  data       DateTime? @db.Date
+  hora       String?   @db.VarChar(10)
+  codigo_pet Int?
+  vacina     String?   @db.VarChar(100)
+  valor      Float?
+  proxima    DateTime? @db.Date
+}
+
+model vendas_abertura {
+  codigo           Int       @id(map: "pk_vendas_abertura") @default(autoincrement())
+  operador         Int?
+  valor            Float?
+  data             DateTime? @db.Date
+  hora             String?   @db.VarChar(8)
+  fechamento_valor Float?
+  fechamento_data  DateTime? @db.Date
+  fechamento_hora  String?   @db.VarChar(8)
+  pdv              Int?
+}
+
+model vendas_base {
+  codigo    Int     @id(map: "pk_vendas_base") @default(autoincrement())
+  cliente   BigInt?
+  vendedor  BigInt?
+  data      String? @db.VarChar(20)
+  hora      String? @db.VarChar(10)
+  dav       BigInt?
+  coo       Int?
+  pdv       Int?
+  cancelado Int?
+  comanda   Int?
+  vendedor2 Int?
+  frete     Float?
+}
+
+model vendas_pag {
+  codigo         Int    @default(autoincrement())
+  venda          BigInt @id(map: "pk_vendas_pag")
+  dinheiro       Float?
+  cartao_debito  Float?
+  cartao_credito Float?
+  ticket         Float?
+  contra_vale    Float?
+  troco          Float?
+  crediario      Float?
+  desconto       Float?
+  alimentacao    Float?
+  refeicao       Float?
+  tef            Float?
+  pix            Float?
+  picpay         Float?
+}
+
+model vendas_prod {
+  codigo        Int     @id(map: "pk_vendas_prod") @default(autoincrement())
+  venda         BigInt?
+  codigo_gtin   String? @db.VarChar(15)
+  preco_venda   Float?
+  qtde          Float?
+  total         Float?
+  item          BigInt?
+  entregar      Int?
+  desconto      Float?
+  preco_compra  Float?
+  desconto_item Float?
+  descricao     String? @db.VarChar(250)
+}
+
+model vendedores {
+  codigo   Int     @id(map: "pk_vendedores")
+  nome     String? @db.VarChar(100)
+  comissao Float?
+  inativo  Int?
+  desc_max Float?
+  senha    String? @db.VarChar(50)
+
+  @@index([codigo], map: "index_vendedores", type: Hash)
+}
+
+/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
+// model cobrancas {
+// }
